@@ -11,7 +11,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
-      - uses: yarn/actions/setup@master
+      - uses: yarn/action-setup@v3
         with:
           version: 7
       - uses: actions/setup-node@v3
