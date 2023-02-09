@@ -1,5 +1,5 @@
 {
-  "name": "steam-tools",
+  "name": "steam-multitools",
   "license": "MIT",
   "version": "0.0.1",
   "main": "dist/index.cjs",
