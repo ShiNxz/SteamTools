@@ -1,18 +1,19 @@
 {
-  "name": "steam-tools-2",
-  "description": "A Node.js wrapper for the Steam Web API, includes many tools for fetching and parsing data from the Steam Web API.",
-  "license": "MIT",
-  "version": "0.0.0",
-  "main": "dist/index.cjs",
-  "module": "dist/index.esm",
-  "types": "dist/index.d.ts",
-  "scripts": {
-    "build": "tsup index.ts --format cjs,esm --dts",
-    "lint": "tsc"
-  },
-  "devDependencies": {
-    "tsup": "^6.6.0",
-    "typescript": "^4.9.5"
-  },
-  "dependencies": {}
+	"name": "steam-api-sdk",
+	"description": "A Node.js wrapper for the Steam Web API, includes many tools for fetching and parsing data from the Steam Web API.",
+	"license": "MIT",
+	"version": "0.0.1",
+	"main": "dist/index.cjs",
+	"module": "dist/index.esm",
+	"types": "dist/index.d.ts",
+	"scripts": {
+		"build": "tsup index.ts --format cjs,esm --dts",
+		"lint": "tsc",
+		"go": "yarn lint && yarn build && yarn publish"
+	},
+	"devDependencies": {
+		"tsup": "^6.6.0",
+		"typescript": "^4.9.5"
+	},
+	"dependencies": {}
 }
