@@ -9,7 +9,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
-      - uses: yarn/action-setup@v3
+      - uses: mskelton/setup-yarn@v1
         with:
           version: 1.22.4
       - uses: actions/setup-node@v3
