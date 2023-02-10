@@ -113,7 +113,7 @@ const steam64 = SteamIDToSteam64('STEAM_0:0:454468949')
 // 76561198869203626
 ```
 
-#### Convert Steam ID to steam64 ID (STEAM_0:0:454468949 ➜ 76561198869203626)
+#### Convert Steam Profile URL to steam64 ID (https://steamcommunity.com/id/XXX/ ➜ 76561198869203626)
 
 ```javascript
 import { VanityUrlTo64 } from 'steam-api-sdk'
