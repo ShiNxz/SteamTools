@@ -70,7 +70,8 @@ const steam32 = From64To32('7656119XXX') // [U:1:XXX]
 ```javascript
 import { From64ToSteamID } from 'steam-api-sdk'
 
-const steamIds = From64ToSteamID('7656119XXX') // Array of: [STEAM_0:0:XXX, STEAM_0:1:XXX]
+const steamIds = From64ToSteamID('7656119XXX')
+// Array of: [STEAM_0:0:XXX, STEAM_0:1:XXX]
 ```
 
 #### Convert Steam64 to a user object (7656119XXX ➜ object details about the user)
@@ -78,8 +79,10 @@ const steamIds = From64ToSteamID('7656119XXX') // Array of: [STEAM_0:0:XXX, STEA
 ```javascript
 import { From64ToUser } from 'steam-api-sdk'
 
-const user = From64ToUser('7656119XXX') // User Object
-const user = From64ToUser(['7656119XXX', '7656119XXX', '7656119XXX']) // User Object Array
+const user = From64ToUser('7656119XXX')
+// User Object
+const user = From64ToUser(['7656119XXX', '7656119XXX', '7656119XXX'])
+// User Object Array
 ```
 
 Please note that you can use string OR array of strings that contains the user's Steam64 id.<br/>
@@ -91,26 +94,32 @@ Please note that you can use string OR array of strings that contains the user's
 ```javascript
 import { GetSteamUser } from 'steam-api-sdk'
 
-const user = GetSteamUser('https://steamcommunity.com/id/NXTShiNxz/') // profile url -> User Object
-const user = GetSteamUser('http://steamcommunity.com/profiles/76561198998419941') // profile url (2) -> User Object
-const user = GetSteamUser('STEAM_0:0:454468949') // profile url (2) -> User Object
-const user = GetSteamUser('76561198869203626') // profile url (2) -> User Object
+const user = GetSteamUser('https://steamcommunity.com/id/NXTShiNxz/')
+// profile url -> User Object
+const user = GetSteamUser('http://steamcommunity.com/profiles/76561198998419941')
+// profile url (2) -> User Object
+const user = GetSteamUser('STEAM_0:0:454468949')
+// profile url (2) -> User Object
+const user = GetSteamUser('76561198869203626')
+// profile url (2) -> User Object
 ```
 
-### Convert Steam ID to steam64 ID (STEAM_0:0:454468949 ➜ 76561198869203626)
+#### Convert Steam ID to steam64 ID (STEAM_0:0:454468949 ➜ 76561198869203626)
 
 ```javascript
 import { SteamIDToSteam64 } from 'steam-api-sdk'
 
-const steam64 = SteamIDToSteam64('STEAM_0:0:454468949') // 76561198869203626
+const steam64 = SteamIDToSteam64('STEAM_0:0:454468949')
+// 76561198869203626
 ```
 
-### Convert Steam ID to steam64 ID (STEAM_0:0:454468949 ➜ 76561198869203626)
+#### Convert Steam ID to steam64 ID (STEAM_0:0:454468949 ➜ 76561198869203626)
 
 ```javascript
 import { VanityUrlTo64 } from 'steam-api-sdk'
 
-const steam64 = VanityUrlTo64('https://steamcommunity.com/id/XXX/') // 76561198869203626
+const steam64 = VanityUrlTo64('https://steamcommunity.com/id/XXX/')
+// 76561198869203626
 ```
 
 #
