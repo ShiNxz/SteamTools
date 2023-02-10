@@ -1,2 +1,2 @@
-const bigInt = require('big-integer')
-export const BASE_NUM = bigInt('76561197960265728')
+import Big from 'big.js'
+export const BASE_NUM = Big('76561197960265728')

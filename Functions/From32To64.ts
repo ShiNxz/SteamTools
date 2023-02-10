@@ -1,4 +1,4 @@
-import bigInt from 'big-integer'
+import Big from 'big.js'
 import { BASE_NUM } from '../utils'
 
 /**
@@ -7,6 +7,6 @@ import { BASE_NUM } from '../utils'
  * @returns The user Steam32 ID, Example: 76561198000000000
  */
 
-const From32To64 = (steam32: string): string => bigInt(steam32).plus(BASE_NUM).toString()
+const From32To64 = (steam32: string): string => Big(steam32).plus(BASE_NUM).toString()
 
 export default From32To64

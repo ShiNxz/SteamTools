@@ -1,6 +1,5 @@
 import axios from 'axios'
-import { config } from 'dotenv'
-config()
+import config from '../config'
 
 /**
  * Converts a vanity url to a Steam64 id using Axios and the Steam API
@@ -19,7 +18,7 @@ const VanityURLTo64 = async (url: string): Promise<string | null> => {
 
 	if (newUrl.length < 1) return null
 
-	const API = `http://api.steampowered.com/ISteamUser/ResolveVanityURL/v0001/?key=${process.env.STEAM_API_KEY}&vanityurl=${newUrl}`
+	const API = `http://api.steampowered.com/ISteamUser/ResolveVanityURL/v0001/?key=${config.apiKey}&vanityurl=${newUrl}`
 	const {
 		data: { response },
 	} = await axios(API)

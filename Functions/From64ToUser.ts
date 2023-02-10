@@ -1,8 +1,9 @@
 import type { IExtendedSteamUser, ISteamUser, ISteamUserResponse } from '../types'
-import { takeRight } from 'lodash'
-import { dropRight } from 'lodash'
+import { takeRight } from 'lodash-es'
+import { dropRight } from 'lodash-es'
 import axios from 'axios'
 import Steam64ToID from './From64ToSteamID'
+import config from '../config'
 
 /**
  * Converts a Steam64 ID to a User Object
@@ -62,9 +63,9 @@ const From64ToUser = async (steam64: string | string[]): Promise<IExtendedSteamU
  */
 const SteamFetch = async (users: string | string[]): Promise<ISteamUserResponse> =>
 	await axios(
-		`http://api.steampowered.com/ISteamUser/GetPlayerSummaries/v2/?key=${
-			process.env.STEAM_API_KEY
-		}&format=json&steamids=${Array.isArray(users) ? users.join(',') : users}`
+		`http://api.steampowered.com/ISteamUser/GetPlayerSummaries/v2/?key=${config.apiKey}&format=json&steamids=${
+			Array.isArray(users) ? users.join(',') : users
+		}`
 	)
 
 export default From64ToUser

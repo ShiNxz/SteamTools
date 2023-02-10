@@ -1,4 +1,4 @@
-const bigInt = require('big-integer')
+import Big from 'big.js'
 import { BASE_NUM } from '../utils'
 
 /**
@@ -10,14 +10,14 @@ const Steam64ToID = (steam64: string): TResult => {
 	if (!steam64 || typeof steam64 !== 'string') return null
 
 	let v = BASE_NUM,
-		w = bigInt(steam64),
+		w = Big(steam64),
 		y = w.mod(2).toString()
 
 	w = w.minus(y).minus(v)
 
 	if (parseInt(w as unknown as string) < 1) return null
 
-	return [`STEAM_0:${y}:${w.divide(2).toString()}`, `STEAM_1:${y}:${w.divide(2).toString()}`]
+	return [`STEAM_0:${y}:${w.div(2).toString()}`, `STEAM_1:${y}:${w.div(2).toString()}`]
 }
 
 type TResult = [string, string] | null
