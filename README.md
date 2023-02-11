@@ -22,7 +22,11 @@ yarn add steam-api-sdk
 
 #
 
-## Getting Started
+# Getting Started
+
+## You have 2 ways to use this package:
+
+### • By using an .env file:
 
 First add an environment variable to your .env file with the name `STEAM_API_KEY` and the value of your Steam API key.
 You can get your Steam API key from [here](https://steamcommunity.com/dev/apikey).
@@ -30,8 +34,20 @@ You can get your Steam API key from [here](https://steamcommunity.com/dev/apikey
 `.env` example:
 
 ```env
-API_KEY = 'user-api-key';
+STEAM_API_KEY = 'web-api-key';
 ```
+
+### • By passing the API key as a parameter to the config file
+
+Import config from the package and pass your Steam API key as a parameter to the config function.
+
+```javascript
+import { config } from 'steam-api-sdk' // or const steam = require -> steam.config
+
+config.apiKey = 'web-api-key'
+```
+
+#
 
 Then import the package into your project:
 
@@ -44,6 +60,8 @@ Or if you are using ES6:
 ```javascript
 import steam from 'steam-api-sdk'
 ```
+
+## Thats all :)
 
 #
 
