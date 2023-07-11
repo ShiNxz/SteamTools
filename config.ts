@@ -3,7 +3,7 @@ const config: IConfig = {
 }
 
 interface IConfig {
-	apiKey: string | null
+	apiKey: string | string[] | null
 }
 
 export default config

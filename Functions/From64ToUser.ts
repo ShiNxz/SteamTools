@@ -19,18 +19,22 @@ const From64ToUser = async (steam64: string | string[]): Promise<IExtendedSteamU
 			const allUsers: IExtendedSteamUser[] = []
 
 			while (steam64.length != 0) {
-				let users = takeRight(steam64, 100)
-				steam64 = dropRight(steam64, 100)
+				try {
+					let users = takeRight(steam64, 100)
+					steam64 = dropRight(steam64, 100)
 
-				const { status, data } = await SteamFetch(users)
-				if (status !== 200 && data.response.players.length > 0) return null
+					const { status, data } = await SteamFetch(users)
+					if (status !== 200 && data.response.players.length > 0) return null
 
-				const newUsers: IExtendedSteamUser[] = data.response.players.map((p: ISteamUser) => ({
-					...p,
-					steamIds: Steam64ToID(p.steamid),
-				}))
+					const newUsers: IExtendedSteamUser[] = data.response.players.map((p: ISteamUser) => ({
+						...p,
+						steamIds: Steam64ToID(p.steamid),
+					}))
 
-				allUsers.push(...newUsers)
+					allUsers.push(...newUsers)
+				} catch (error) {
+					console.error(error)
+				}
 			}
 
 			return allUsers
@@ -38,11 +42,17 @@ const From64ToUser = async (steam64: string | string[]): Promise<IExtendedSteamU
 
 		// If the array is less than 100 users, we will just fetch the data
 		else {
-			const { status, data } = await SteamFetch(steam64)
+			try {
+				const { status, data } = await SteamFetch(steam64)
 
-			if (status !== 200 && data.response.players.length > 0) return null
+				if (status !== 200 && data.response.players.length > 0) return null
 
-			return data.response.players.map((p: ISteamUser) => ({ ...p, steamIds: Steam64ToID(p.steamid) }))
+				return data.response.players.map((p: ISteamUser) => ({ ...p, steamIds: Steam64ToID(p.steamid) }))
+			} catch (error) {
+				console.error(error)
+
+				return null
+			}
 		}
 	}
 
@@ -58,14 +68,36 @@ const From64ToUser = async (steam64: string | string[]): Promise<IExtendedSteamU
 
 /**
  * Steam Fetch function to fetch data from the Steam API using Axios
+ * @update 2022-07-11: Added support for multiple API keys and random API key selection
  * @param users string or array of strings of Steam64 IDs
  * @returns fetch response
  */
 const SteamFetch = async (users: string | string[]): Promise<ISteamUserResponse> =>
-	await axios(
-		`http://api.steampowered.com/ISteamUser/GetPlayerSummaries/v2/?key=${config.apiKey}&format=json&steamids=${
-			Array.isArray(users) ? users.join(',') : users
-		}`
-	)
+	new Promise(async (resolve, reject) => {
+		let apiKey = null
+
+		if (typeof config.apiKey === 'string') {
+			if (config.apiKey?.includes(',')) {
+				const keys = config.apiKey.split(',')
+				apiKey = keys[Math.floor(Math.random() * keys.length)]
+			} else {
+				apiKey = config.apiKey
+			}
+		} else if (Array.isArray(config.apiKey)) {
+			apiKey = config.apiKey[Math.floor(Math.random() * config.apiKey.length)]
+		}
+
+		try {
+			const data = await axios(
+				`http://api.steampowered.com/ISteamUser/GetPlayerSummaries/v2/?key=${apiKey}&format=json&steamids=${
+					Array.isArray(users) ? users.join(',') : users
+				}`
+			)
+
+			resolve(data)
+		} catch (error) {
+			reject(error)
+		}
+	})
 
 export default From64ToUser
