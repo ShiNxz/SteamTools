@@ -10,7 +10,7 @@ import VanityURLTo64 from './VanityUrlTo64'
  * @param {string} identifier The identifier of the user (SteamID / SteamID64 / SteamID3 / CustomURL)
  * @returns {object | null} The Steam User Object or null if not found
  */
-const GetSteamUser = async (identifier: string): Promise<IExtendedSteamUser[] | null> => {
+const GetSteamUser = async (identifier: string): Promise<IExtendedSteamUser | null> => {
 	if (!identifier) return null
 
 	// We will use them later
@@ -51,9 +51,9 @@ const GetSteamUser = async (identifier: string): Promise<IExtendedSteamUser[] | 
 	}
 
 	const user = await From64ToUser(steam64 || identifier)
-	if (!user) return null
+	if (!user || !user.length || !user[0]) return null
 
-	return user
+	return user[0]
 }
 
 export default GetSteamUser
