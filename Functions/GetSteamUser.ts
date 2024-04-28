@@ -1,5 +1,4 @@
 import { IExtendedSteamUser } from '../types'
-import Steam64ToID from './From64ToSteamID'
 import From64ToUser from './From64ToUser'
 import SteamIDTo64 from './SteamIDToSteam64'
 import VanityURLTo64 from './VanityUrlTo64'
@@ -10,20 +9,16 @@ import VanityURLTo64 from './VanityUrlTo64'
  * @param {string} identifier The identifier of the user (SteamID / SteamID64 / SteamID3 / CustomURL)
  * @returns {object | null} The Steam User Object or null if not found
  */
-const GetSteamUser = async (identifier: string): Promise<IExtendedSteamUser | null> => {
-	if (!identifier) return null
+const GetSteamUser = async (identifier: string): Promise<IExtendedSteamUser> => {
+	if (!identifier) throw new Error('Invalid Identifier')
 
-	// We will use them later
-	let steamIds: [string, string] | null = null
+	// We will use this later
 	let steam64: string | null = null
 
 	// IF Vanity URL => VanityURLTo64
 	if (identifier.includes('steamcommunity.com/id/')) {
 		steam64 = await VanityURLTo64(identifier)
-		if (!steam64) return null
-
-		steamIds = Steam64ToID(steam64)
-		if (!steamIds) return null
+		if (!steam64) throw new Error('Invalid Custom URL')
 	}
 
 	// 64 URL => Clear URL => Steam JSON
@@ -40,18 +35,18 @@ const GetSteamUser = async (identifier: string): Promise<IExtendedSteamUser | nu
 	// SteamID => Steam64
 	else if (identifier && identifier.toString().startsWith('STEAM_')) {
 		steam64 = SteamIDTo64(identifier)
-		if (!steam64) return null
+		if (!steam64) throw new Error('Invalid SteamID')
 	}
 
 	// Steam64 => Steam JSON
 	if (!identifier.startsWith('765') && !steam64) {
-		console.log('ERROR')
+		console.log('ERROR', 'Invalid SteamID64', identifier, steam64)
 
-		return null
+		throw new Error('Invalid SteamID64')
 	}
 
 	const user = await From64ToUser(steam64 || identifier)
-	if (!user || !user.length || !user[0]) return null
+	if (!user || !user.length || !user[0]) throw new Error('Invalid SteamID64')
 
 	return user[0]
 }

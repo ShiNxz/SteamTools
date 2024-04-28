@@ -8,10 +8,11 @@ import config from '../config'
 /**
  * Converts a Steam64 ID to a User Object
  * @param steam64 The user Steam64 ID, Example: 76561198000000000 OR Array of Steam64 IDs
+ * @param delay The delay between each request (default: 100ms)
  * @returns User Object or null if not found
  */
-const From64ToUser = async (steam64: string | string[]): Promise<IExtendedSteamUser[] | null> => {
-	if (!steam64) return null
+const From64ToUser = async (steam64: string | string[], delay = 100): Promise<IExtendedSteamUser[]> => {
+	if (!steam64) throw new Error('Invalid Steam64 ID')
 
 	// If the steam64 is an array -> we will split it into chunks of 100 users
 	if (Array.isArray(steam64)) {
@@ -24,12 +25,22 @@ const From64ToUser = async (steam64: string | string[]): Promise<IExtendedSteamU
 					steam64 = dropRight(steam64, 100)
 
 					const { status, data } = await SteamFetch(users)
-					if (status !== 200 && data.response.players.length > 0) return null
+					if (status !== 200 && data.response.players.length > 0) throw new Error('Invalid Steam64 ID')
 
-					const newUsers: IExtendedSteamUser[] = data.response.players.map((p: ISteamUser) => ({
-						...p,
-						steamIds: Steam64ToID(p.steamid),
-					}))
+					const newUsers: IExtendedSteamUser[] = []
+
+					data.response.players.forEach((p: ISteamUser) => {
+						const user = Steam64ToID(p.steamid)
+						if (!user) return null
+
+						newUsers.push({
+							...p,
+							steamIds: user,
+						})
+
+						// Delay between each request
+						if (delay) new Promise((r) => setTimeout(r, delay))
+					})
 
 					allUsers.push(...newUsers)
 				} catch (error) {
@@ -45,13 +56,13 @@ const From64ToUser = async (steam64: string | string[]): Promise<IExtendedSteamU
 			try {
 				const { status, data } = await SteamFetch(steam64)
 
-				if (status !== 200 && data.response.players.length > 0) return null
+				if (status !== 200 && data.response.players.length > 0) throw new Error('Invalid Steam64 ID')
 
 				return data.response.players.map((p: ISteamUser) => ({ ...p, steamIds: Steam64ToID(p.steamid) }))
 			} catch (error) {
 				console.error(error)
 
-				return null
+				throw new Error('Invalid Steam64 ID')
 			}
 		}
 	}
@@ -60,7 +71,7 @@ const From64ToUser = async (steam64: string | string[]): Promise<IExtendedSteamU
 	else {
 		const { status, data } = await SteamFetch(steam64)
 
-		if (status !== 200 && data.response.players.length > 0) return null
+		if (status !== 200 && data.response.players.length > 0) throw new Error('Invalid Steam64 ID')
 
 		return data.response.players.map((p: ISteamUser) => ({ ...p, steamIds: Steam64ToID(p.steamid) }))
 	}
