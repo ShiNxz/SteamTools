@@ -21,17 +21,22 @@ async function From64ToUser(
 	if (!steam64) throw new Error('Invalid Steam64 ID')
 
 	const fetchUsers = async (ids: string[]): Promise<IExtendedSteamUser[]> => {
-		const { status, data } = await SteamFetch(ids)
-		if (status !== 200 || !data.response.players.length) throw new Error('Invalid Steam64 ID')
+		try {
+			const data = await SteamFetch(ids)
+			if (!data.length) throw new Error('Invalid Steam64 ID')
 
-		const users: IExtendedSteamUser[] = data.response.players
-			.map((p: ISteamUser) => ({
-				...p,
-				steamIds: Steam64ToID(p.steamid),
-			}))
-			.filter((u): u is IExtendedSteamUser => !!u)
+			const users: IExtendedSteamUser[] = data
+				.map((p: ISteamUser) => ({
+					...p,
+					steamIds: Steam64ToID(p.steamid),
+				}))
+				.filter((u): u is IExtendedSteamUser => !!u)
 
-		return users
+			return users
+		} catch (error) {
+			console.error(error)
+			return []
+		}
 	}
 
 	if (Array.isArray(steam64)) {
@@ -67,22 +72,31 @@ async function From64ToUser(
  * @param users string or array of strings of Steam64 IDs
  * @returns fetch response
  */
-const SteamFetch = async (users: string | string[]): Promise<ISteamUserResponse> => {
-	const apiKey = Array.isArray(config.apiKey)
-		? config.apiKey[Math.floor(Math.random() * config.apiKey.length)]
-		: config.apiKey?.includes(',')
-		? config.apiKey.split(',')[Math.floor(Math.random() * config.apiKey.split(',').length)]
-		: config.apiKey
+const SteamFetch = async (users: string | string[]): Promise<ISteamUserResponse['data']['response']['players']> => {
+	let apiKey = null
+
+	if (typeof config.apiKey === 'string') {
+		if (config.apiKey?.includes(',')) {
+			const keys = config.apiKey.split(',')
+			apiKey = keys[Math.floor(Math.random() * keys.length)]
+		} else {
+			apiKey = config.apiKey
+		}
+	} else if (Array.isArray(config.apiKey)) {
+		apiKey = config.apiKey[Math.floor(Math.random() * config.apiKey.length)]
+	}
+
+	if (!apiKey) throw new Error('No API key found')
 
 	const url = `http://api.steampowered.com/ISteamUser/GetPlayerSummaries/v2/?key=${apiKey}&format=json&steamids=${
 		Array.isArray(users) ? users.join(',') : users
 	}`
 
 	try {
-		const { data } = await axios.get(url)
-		return data
+		const { data } = await axios.get<ISteamUserResponse['data']>(url)
+		return data.response.players
 	} catch (error) {
-		throw new Error(`Failed to fetch data: ${(error as any).message}`)
+		throw new Error(`Failed to fetch data: ${error as any}`)
 	}
 }
 
