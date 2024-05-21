@@ -46,9 +46,9 @@ const GetSteamUser = async (identifier: string): Promise<IExtendedSteamUser> => 
 	}
 
 	const user = await From64ToUser(steam64 || identifier)
-	if (!user || !user.length || !user[0]) throw new Error('Invalid SteamID64')
+	if (!user) throw new Error('Invalid SteamID64')
 
-	return user[0]
+	return user
 }
 
 export default GetSteamUser

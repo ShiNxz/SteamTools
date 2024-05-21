@@ -1,9 +1,12 @@
 import type { IExtendedSteamUser, ISteamUser, ISteamUserResponse } from '../types'
-import { takeRight } from 'lodash-es'
-import { dropRight } from 'lodash-es'
+import { takeRight, dropRight } from 'lodash-es'
 import axios from 'axios'
 import Steam64ToID from './From64ToSteamID'
 import config from '../config'
+
+// Function overloads
+async function From64ToUser(steam64: string, delay?: number): Promise<IExtendedSteamUser>
+async function From64ToUser(steam64: string[], delay?: number): Promise<IExtendedSteamUser[]>
 
 /**
  * Converts a Steam64 ID to a User Object
@@ -11,69 +14,50 @@ import config from '../config'
  * @param delay The delay between each request (default: 100ms)
  * @returns User Object or null if not found
  */
-const From64ToUser = async (steam64: string | string[], delay = 100): Promise<IExtendedSteamUser[]> => {
+async function From64ToUser(
+	steam64: string | string[],
+	delay = 100
+): Promise<IExtendedSteamUser | IExtendedSteamUser[]> {
 	if (!steam64) throw new Error('Invalid Steam64 ID')
 
-	// If the steam64 is an array -> we will split it into chunks of 100 users
+	const fetchUsers = async (ids: string[]): Promise<IExtendedSteamUser[]> => {
+		const { status, data } = await SteamFetch(ids)
+		if (status !== 200 || !data.response.players.length) throw new Error('Invalid Steam64 ID')
+
+		const users: IExtendedSteamUser[] = data.response.players
+			.map((p: ISteamUser) => ({
+				...p,
+				steamIds: Steam64ToID(p.steamid),
+			}))
+			.filter((u): u is IExtendedSteamUser => !!u)
+
+		return users
+	}
+
 	if (Array.isArray(steam64)) {
 		if (steam64.length > 100) {
 			const allUsers: IExtendedSteamUser[] = []
 
-			while (steam64.length != 0) {
+			while (steam64.length > 0) {
+				const users = takeRight(steam64, 100)
+				steam64 = dropRight(steam64, 100)
 				try {
-					let users = takeRight(steam64, 100)
-					steam64 = dropRight(steam64, 100)
-
-					const { status, data } = await SteamFetch(users)
-					if (status !== 200 && data.response.players.length > 0) throw new Error('Invalid Steam64 ID')
-
-					const newUsers: IExtendedSteamUser[] = []
-
-					data.response.players.forEach((p: ISteamUser) => {
-						const user = Steam64ToID(p.steamid)
-						if (!user) return null
-
-						newUsers.push({
-							...p,
-							steamIds: user,
-						})
-
-						// Delay between each request
-						if (delay) new Promise((r) => setTimeout(r, delay))
-					})
-
-					allUsers.push(...newUsers)
+					const fetchedUsers = await fetchUsers(users)
+					allUsers.push(...fetchedUsers)
 				} catch (error) {
 					console.error(error)
 				}
+				if (delay) await new Promise((r) => setTimeout(r, delay))
 			}
-
 			return allUsers
+		} else {
+			return await fetchUsers(steam64)
 		}
+	} else {
+		const users = await fetchUsers([steam64])
+		if (!users.length) throw new Error('Could not find user')
 
-		// If the array is less than 100 users, we will just fetch the data
-		else {
-			try {
-				const { status, data } = await SteamFetch(steam64)
-
-				if (status !== 200 && data.response.players.length > 0) throw new Error('Invalid Steam64 ID')
-
-				return data.response.players.map((p: ISteamUser) => ({ ...p, steamIds: Steam64ToID(p.steamid) }))
-			} catch (error) {
-				console.error(error)
-
-				throw new Error('Invalid Steam64 ID')
-			}
-		}
-	}
-
-	// If the steam64 is a string, we will just fetch the data
-	else {
-		const { status, data } = await SteamFetch(steam64)
-
-		if (status !== 200 && data.response.players.length > 0) throw new Error('Invalid Steam64 ID')
-
-		return data.response.players.map((p: ISteamUser) => ({ ...p, steamIds: Steam64ToID(p.steamid) }))
+		return users[0] as IExtendedSteamUser
 	}
 }
 
@@ -83,32 +67,23 @@ const From64ToUser = async (steam64: string | string[], delay = 100): Promise<IE
  * @param users string or array of strings of Steam64 IDs
  * @returns fetch response
  */
-const SteamFetch = async (users: string | string[]): Promise<ISteamUserResponse> =>
-	new Promise(async (resolve, reject) => {
-		let apiKey = null
+const SteamFetch = async (users: string | string[]): Promise<ISteamUserResponse> => {
+	const apiKey = Array.isArray(config.apiKey)
+		? config.apiKey[Math.floor(Math.random() * config.apiKey.length)]
+		: config.apiKey?.includes(',')
+		? config.apiKey.split(',')[Math.floor(Math.random() * config.apiKey.split(',').length)]
+		: config.apiKey
 
-		if (typeof config.apiKey === 'string') {
-			if (config.apiKey?.includes(',')) {
-				const keys = config.apiKey.split(',')
-				apiKey = keys[Math.floor(Math.random() * keys.length)]
-			} else {
-				apiKey = config.apiKey
-			}
-		} else if (Array.isArray(config.apiKey)) {
-			apiKey = config.apiKey[Math.floor(Math.random() * config.apiKey.length)]
-		}
+	const url = `http://api.steampowered.com/ISteamUser/GetPlayerSummaries/v2/?key=${apiKey}&format=json&steamids=${
+		Array.isArray(users) ? users.join(',') : users
+	}`
 
-		try {
-			const data = await axios(
-				`http://api.steampowered.com/ISteamUser/GetPlayerSummaries/v2/?key=${apiKey}&format=json&steamids=${
-					Array.isArray(users) ? users.join(',') : users
-				}`
-			)
-
-			resolve(data)
-		} catch (error) {
-			reject(error)
-		}
-	})
+	try {
+		const { data } = await axios.get(url)
+		return data
+	} catch (error) {
+		throw new Error(`Failed to fetch data: ${(error as any).message}`)
+	}
+}
 
 export default From64ToUser
