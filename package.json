@@ -2,7 +2,7 @@
 	"name": "steam-api-sdk",
 	"description": "A Node.js wrapper for the Steam Web API, includes many tools for fetching and parsing data from the Steam Web API.",
 	"license": "MIT",
-	"version": "1.6.0",
+	"version": "1.6.1",
 	"main": "dist/index.mjs",
 	"module": "dist/index.esm",
 	"types": "dist/index.d.ts",
