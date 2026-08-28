@@ -1,8 +1,8 @@
 # Steam-API-SDK
 
-This package includes many functions to use along with the Steam API.
+This package includes many Functions to use along with the Steam API.
 It is a work in progress and will be updated over time.
-Currently it includes some basic and advanced functions to fetch data about users.
+Currently it includes some basic and advanced Functions to fetch data about users.
 
 #
 
@@ -45,6 +45,7 @@ Import config from the package and pass your Steam API key as a parameter to the
 import { config } from 'steam-api-sdk' // or const steam = require -> steam.config
 
 config.apiKey = 'web-api-key'
+config.debugMode = true // optional
 ```
 
 #
@@ -134,9 +135,9 @@ const steam64 = SteamIDToSteam64('STEAM_0:0:454468949')
 #### Convert Steam Profile URL to steam64 ID (https://steamcommunity.com/id/XXX/ ➜ 76561198869203626)
 
 ```javascript
-import { VanityUrlTo64 } from 'steam-api-sdk'
+import { VanityURLTo64 } from 'steam-api-sdk'
 
-const steam64 = VanityUrlTo64('https://steamcommunity.com/id/XXX/')
+const steam64 = VanityURLTo64('https://steamcommunity.com/id/XXX/')
 // 76561198869203626
 ```
 
@@ -146,7 +147,7 @@ const steam64 = VanityUrlTo64('https://steamcommunity.com/id/XXX/')
 
 If you want to contribute to this package, please feel free to do so by opening a pull request with your changes.<br>
 Currently this package is in development and will be updated over time.<br>
-We are looking for contributors to help us improve this package by adding new functions and improving the existing ones.
+We are looking for contributors to help us improve this package by adding new Functions and improving the existing ones.
 
 #
 

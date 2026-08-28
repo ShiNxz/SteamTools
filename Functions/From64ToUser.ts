@@ -21,22 +21,17 @@ async function From64ToUser(
 	if (!steam64) throw new Error('Invalid Steam64 ID')
 
 	const fetchUsers = async (ids: string[]): Promise<IExtendedSteamUser[]> => {
-		try {
-			const data = await SteamFetch(ids)
-			if (!data.length) throw new Error('Invalid Steam64 ID')
+		const data = await SteamFetch(ids)
+		if (!data.length) throw new Error('Invalid Steam64 ID')
 
-			const users: IExtendedSteamUser[] = data
-				.map((p: ISteamUser) => ({
-					...p,
-					steamIds: Steam64ToID(p.steamid),
-				}))
-				.filter((u): u is IExtendedSteamUser => !!u)
+		const users: IExtendedSteamUser[] = data
+			.map((p: ISteamUser) => ({
+				...p,
+				steamIds: Steam64ToID(p.steamid),
+			}))
+			.filter((u): u is IExtendedSteamUser => !!u)
 
-			return users
-		} catch (error) {
-			console.error(error)
-			return []
-		}
+		return users
 	}
 
 	if (Array.isArray(steam64)) {
@@ -46,14 +41,13 @@ async function From64ToUser(
 			while (steam64.length > 0) {
 				const users = takeRight(steam64, 100)
 				steam64 = dropRight(steam64, 100)
-				try {
-					const fetchedUsers = await fetchUsers(users)
-					allUsers.push(...fetchedUsers)
-				} catch (error) {
-					console.error(error)
-				}
+
+				const fetchedUsers = await fetchUsers(users)
+				allUsers.push(...fetchedUsers)
+
 				if (delay) await new Promise((r) => setTimeout(r, delay))
 			}
+
 			return allUsers
 		} else {
 			return await fetchUsers(steam64)
@@ -96,7 +90,18 @@ const SteamFetch = async (users: string | string[]): Promise<ISteamUserResponse[
 		const { data } = await axios.get<ISteamUserResponse['data']>(url)
 		return data.response.players
 	} catch (error) {
-		throw new Error(`Failed to fetch data: ${error as any}`)
+		if (axios.isAxiosError(error)) {
+			if (error.response) {
+				const { status, statusText } = error.response
+				throw new Error(`Error ${status}: ${statusText} (apiKey: ${apiKey})`)
+			} else if (error.request) {
+				throw new Error('No response received from server (apiKey: ${apiKey})')
+			} else {
+				throw new Error(`Request error: ${error.message} (apiKey: ${apiKey})`)
+			}
+		} else {
+			throw new Error(`Unexpected error: ${error} (apiKey: ${apiKey})`)
+		}
 	}
 }
 

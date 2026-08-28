@@ -1,11 +1,11 @@
 import { IExtendedSteamUser } from '../types'
 import From64ToUser from './From64ToUser'
 import SteamIDTo64 from './SteamIDToSteam64'
-import VanityURLTo64 from './VanityUrlTo64'
+import VanityURLTo64 from './VanityURLTo64'
 
 /**
  * A function that handles the fetching of the Steam User from the identifier (SteamID / SteamID64 / SteamID3 / CustomURL) and returns the Steam User Object
- * It will save the use of multiple functions to get the Steam User Object from the identifier, no matter what the identifier is
+ * It will save the use of multiple Functions to get the Steam User Object from the identifier, no matter what the identifier is
  * @param {string} identifier The identifier of the user (SteamID / SteamID64 / SteamID3 / CustomURL)
  * @returns {object | null} The Steam User Object or null if not found
  */
